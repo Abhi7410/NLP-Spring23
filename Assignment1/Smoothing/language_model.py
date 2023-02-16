@@ -1,6 +1,12 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import sys
 import os
 import math
+import dill
+import pickle
+import random
 from collections import defaultdict
 import time
 import string
@@ -41,7 +47,7 @@ def removeEmail(text):
 
 
 def removeNumber(text):
-    return re.sub(r'[0-9]+(,([0-9]+))*(\.([0-9]+))?%?\s', '<NUMBER>', text)
+    return re.sub(r'[0-9]+(,([0-9]+))*(\.([0-9]+))?%?\s', '<NUMBER> ', text)
 
 
 def removeExtraSpace(text):
@@ -56,27 +62,27 @@ def removeExtraLine(text):
     return text
 
 
+def removeDataTime(text):
+    text = re.sub(
+        r'\d{2,4}\-\d\d-\d{2,4}|\d{2,4}\/\d\d\/\d{2,4}|\d{2,4}:\d\d:?\d{2,4}', '<DATE>', text)
+    return re.sub(r'\d+:\d\d:?\d{0,2}?( am|am| pm|pm)', r'<TIME>', text)
+
+
 def Clean(str):
     str = str.lower()
     str = removeURL(str)
     str = removeHashtag(str)
     str = removeMentions(str)
     str = removeEmail(str)
-    # str = removeNumber(str)
+    str = removeDataTime(str)
+    str = removeNumber(str)
     str = remove_punctuations(str)
     str = removeExtraSpace(str)
     return str
 
 
 def Token(str):
-    str = str.lower()
-    str = removeURL(str)
-    str = removeHashtag(str)
-    str = removeMentions(str)
-    str = removeEmail(str)
-    # str = removeNumber(str)
-    str = remove_punctuations(str)
-    str = removeExtraSpace(str)
+    str = Clean(str)
     return wordTokenizer(str)
 
 
@@ -90,7 +96,7 @@ def paddedString(str, n):
 
 def createFreqTable(trainFile, n):
     """
-    create a freq dictionary for each n gram
+    create a freq dictionary for each n gram 
     and create a vocab set for each n gram
     """
     # open the file and read the data
@@ -112,7 +118,7 @@ def createFreqTable(trainFile, n):
 
     uniWordsVocab = set(uniWordsFreq.keys())
     uniWordsVocab = uniWordsVocab.difference(
-        word for word in uniWordsVocab if uniWordsFreq[word] <= 4)
+        word for word in uniWordsVocab if uniWordsFreq[word] <= 10)
     uniWordsVocab.update({'<UNK>', '<s>', '</s>'})
 
     regenratedData = []
@@ -121,37 +127,91 @@ def createFreqTable(trainFile, n):
         newSentence += [word if word in uniWordsVocab else '<UNK>' for word in sentence]
         regenratedData += [paddedString(newSentence, n)]
 
-    # print(regenratedData)
     ngramFreq = [defaultdict(lambda: 0) for i in range(n)]
-    # ngramFreq = [{} for i in range(n)]
-    # for sent in regenratedData:
-
     for sent in regenratedData:
         for ind in range(n-1, len(sent)):
             ngram = (sent[ind],)
-            # print(ngram)
-            for nval in range(1, n+1):
-                ngramFreq[nval-1][ngram] += 1
-                ngram = (sent[ind-nval],) + ngram
+            for i in range(1, n+1):
+                ngramFreq[i-1][ngram] += 1
+                ngram = (sent[ind-i],) + ngram
 
     return ngramFreq, uniWordsVocab
 
-# data = open('../DATA/train.txt', 'r')
+
+def calforallContext(ngramFreq, n):
+    """
+    calculate the count of occurence of every context  and the sum of freq
+    """
+    contextTable = [defaultdict(lambda: 0) for i in range(n)]
+    contextCntTable = [defaultdict(lambda: 0) for i in range(n)]
+    contextWordTable = [defaultdict(lambda: 0) for i in range(n)]
+    totWordGram = [0 for i in range(n)]
+    for i in range(1, n+1):
+        ngramItems = ngramFreq[i-1].items()
+        for cnt, freq in ngramItems:
+            if freq > 0:
+                contextTable[i-1][cnt[:-1]] += freq
+                contextCntTable[i-1][cnt[:-1]] += 1
+                contextWordTable[i-1][cnt[-1]] += 1
+                totWordGram[i-1] += 1
+    return contextTable, contextCntTable, contextWordTable, totWordGram
 
 
-# a, b = createFreqTable("../DATA/train.txt", 4)
-# # print(a)
+def splitTestTrainData(dataFile, trainFile, testFile):
+    """
+    Split the data into train and test data.
+
+    Parameters:
+    - dataFile: The data file.
+    - trainFile: The train file.
+    - testFile: The test file.
+    """
+    with open(dataFile, 'r') as f:
+        data = f.readlines()
+
+    # first 1000 lines in test data other in train data
+    random.shuffle(data)
+    with open(trainFile, 'w') as f:
+        f.writelines(data[1000:])
+    with open(testFile, 'w') as f:
+        f.writelines(data[:1000])
+
+
+# splitTestTrainData('../DATA/cleaned_corpus.txt',
+#                    '../DATA/train1.txt', '../DATA/test1.txt')
+# splitTestTrainData('../DATA/cleaned_corpus2.txt',
+#                    '../DATA/train2.txt', '../DATA/test2.txt')
+
+# save both corpus ngram frequencies and context table in a file using pickle
+
+def saveModel(modelFile, ngramFreq, contextTable, contextCntTable, uniWordsVocab, contextWordTable, totWordGram):
+    with open(modelFile, 'wb') as f:
+        dill.dump((ngramFreq, contextTable, contextCntTable, uniWordsVocab,
+                  contextWordTable, totWordGram), f, protocol=pickle.HIGHEST_PROTOCOL)
+
+# load the model from the file
+
+
+def loadModel(modelFile):
+    with open(modelFile, 'rb') as f:
+        return dill.load(f)
+
+
+# sstore for firsst corpus
+# ngramFreq, uniWordsVocab = createFreqTable('../DATA/train1.txt', 4)
+# contextTable, contextCntTable, contextWordTable, totWordGram = calforallContext(
+#     ngramFreq, 4)
+# saveModel('../DATA/model1.pkl', ngramFreq, contextTable,
+#           contextCntTable, uniWordsVocab, contextWordTable, totWordGram)
+
+# # store for second corpus
+# ngramFreq, uniWordsVocab = createFreqTable('../DATA/train2.txt', 4)
+# contextTable, contextCntTable,contextWordTable,totWordGram = calforallContext(ngramFreq,4)
+# saveModel('../DATA/model2.pkl', ngramFreq,contextTable,contextCntTable,uniWordsVocab,contextWordTable,totWordGram)
 
 
 class KneserNey:
-    """
-       Formula :
-       Absolute discounting
-       Backoff
-       Interpolation
-    """
-
-    def __init__(self, vocab, ngramFreq, n, d=1):
+    def __init__(self, vocab, ngramFreq, n, d, contextTable, contextCntTable, contextWordTable, totWordGram):
         """
         Initialize the Kneser-Ney language model.
 
@@ -168,6 +228,9 @@ class KneserNey:
         self.n = n
         self.d = d
         self.dpProb = {}
+        self.contextTable, self.contextCntTable = contextTable, contextCntTable
+        self.contextWordTable = contextWordTable
+        self.totWordGram = totWordGram
 
     def absDiscounting(self, count, countTotal):
         """
@@ -175,15 +238,27 @@ class KneserNey:
         """
         return max(0, count-self.d)/countTotal
 
-    def lambdaCount(self, countTotal):
+    def lambdaCount(self, countTotal, num):
         """
         lambda count formula
         """
-        return self.d/countTotal
+        return (self.d/countTotal)*num
+
+    def calProbContext(self, ind, currWord, context):
+        cnt = 0
+        cntMatch = 0
+        # sum = self.ngram_frequencies[ind-1][(currWord,)]
+        for befContext, freq in self.ngram_items[ind]:
+            if freq > 0:
+                cnt += 1
+                if befContext[1] == currWord:
+                    cntMatch += 1
+
+        return cntMatch, cnt
 
     def getProbability(self, ind, sentence):
         """
-        Get the probability of a indth word using (ind -n +1) to ind as context
+        Get the probability of a indth word using (ind -n +1) to ind as context 
         Parameters:
         - ind: The index of the word.
         - sentence: The sentence.
@@ -196,69 +271,43 @@ class KneserNey:
         try:
             prob = self.dpProb[tuple(context + [currWord])]
         except KeyError:
-            uppList = [befContext for befContext, freq in self.ngram_items[1]
-                       if freq > 0 and befContext[1] == currWord]
-            numerator = len(uppList)
-            downList = [befContext for befContext,
-                        freq in self.ngram_items[1] if freq > 0]
-            denominator = len(downList)
-            if(denominator == 0):
+            denominator = self.totWordGram[1]
+            numerator = self.contextWordTable[1][currWord]
+            if numerator == 0:
                 prob = self.d/self.ngram_frequencies[0][('<UNK>',)]
             else:
                 prob = numerator/denominator
-                
             for i in range(2, self.n+1):
                 oldContext = context[-i+1:]
                 oldWord = tuple(oldContext+[currWord])
                 freqofOldWord = self.ngram_frequencies[i-1][oldWord]
-                probArray = [frequency for cont, frequency in self.ngram_items[i-1]
-                             if frequency > 0 and list(cont[:-1]) == list(oldContext)]
-                deno = sum(probArray)
-                num = len(probArray)
-                print("num : ", num)
-                print("deno : ", deno)
+                deno = self.contextTable[i-1][tuple(oldContext,)]
+                num = self.contextCntTable[i-1][tuple(oldContext,)]
                 if deno == 0:
                     prob = self.d/self.ngram_frequencies[0][('<UNK>',)]
                 else:
                     prob = self.absDiscounting(
-                        freqofOldWord, deno) + self.lambdaCount(deno)*num*prob
+                        freqofOldWord, deno) + self.lambdaCount(deno, num)*prob
             prob = math.log(prob)
             self.dpProb[tuple(context+[currWord])] = prob
         return prob
-       
 
     def perplexity(self, sentence, isTokenized):
-        """
-        Calculate the perplexity of a sentence.
-
-        Parameters:
-        - sentence: The sentence.
-
-        Returns:
-        - The perplexity of the sentence.
-        """
         if(isTokenized == 'not'):
-            prevLength = len(sentence)
             sentence = paddedString(Token(sentence), self.n)
         else:
-            prevLength = len(sentence)
             sentence = paddedString(sentence, self.n)
         logp = 0
-        # print(len(sentence))
         for index in range(self.n-1, len(sentence)):
             lp = self.getProbability(index, sentence)
             logp += lp
-        # print(logp)
-        try:
-            perpl = math.exp(logp*(-1/len(sentence)))
-        except:
-            perpl = float("NaN")
+        perpl = math.exp(logp*(-1/len(sentence)))
         return perpl
 
 
 # witten bell smoothing
 class WittenBell:
-    def __init__(self, vocab, ngramFreq, n):
+    def __init__(self, vocab, ngramFreq, n, contextTable, contextCntTable, contextWordTable, totWordGram):
         """
         Initialize the Witten-Bell language model.
 
@@ -272,6 +321,15 @@ class WittenBell:
         self.ngram_items = [freq.items() for freq in ngramFreq]
         self.n = n
         self.dpProb = {}
+        self.contextTable, self.contextCntTable = contextTable, contextCntTable
+        self.contextWordTable = contextWordTable
+        self.totWordGram = totWordGram
+
+    def lambdaCount(self, cntpos, sumtot):
+        """
+        lambda count formula
+        """
+        return (cntpos/(sumtot+cntpos))
 
     def getProbability(self, ind, sentence):
         """
@@ -288,65 +346,37 @@ class WittenBell:
         context = sentence[ind-self.n+1:ind]
         currWord = currWord if currWord in self.vocab else '<UNK>'
         context = [word if word in self.vocab else '<UNK>' for word in context]
+
         try:
             prob = self.dpProb[tuple(context + [currWord])]
-        except:
-            KeyError
-        pair = tuple(context[-1] + currWord)
-        freqofPair = self.ngram_frequencies[1][pair]  # count of pair
-        # tw = prob of seeing a new bigram starting with w1
-        # nw = number of different n-gram (types) starting with w1
-        # zw = number of unseen n-gram (tokens) starting with w1
-        # w1 =
-        tw = len([freq for cont, freq in self.ngram_items[1]
-                 if freq > 0 and cont[0] == context[-1]])
-        nw = sum(
-            freq for cont, freq in self.ngram_items[1] if freq > 0 and cont[0] == context[-1])
-        if(tw == 0):
-            tw = 2
-        if(freqofPair == 0):
-            zw = len(self.vocab)-tw
-            if(zw == 0):
-                zw = 2
-            try:
-                prob = (tw/(zw*(nw+tw)))
-            except:
-                return float("NaN")
-        else:
-            try:
-                prob = (freqofPair)/(nw+tw)
-            except:
-                return float("NaN")
+        except KeyError:
+            pair = tuple(context[-1] + currWord)
+            freqofPair = self.ngram_frequencies[1][pair]
+            if(freqofPair == 0):
+                prob = 1/self.ngram_frequencies[0][('<UNK>',)]
+            else:
+                prob = freqofPair/self.ngram_frequencies[0][(context[-1],)]
 
-        for i in range(2, self.n + 1):
-            oldContext = context[-i+1:]
-            oldWord = tuple(oldContext+[currWord])
-            freqofOldWord = self.ngram_frequencies[i-1][oldWord]
-            probArray = [frequency for cont, frequency in self.ngram_items[i-1]
-                         if frequency > 0 and list(cont[:-1]) == list(oldContext)]
-            totalFreq = sum(probArray)
-            nw = len(probArray)
-            if(nw == 0):
-                nw = 2
-            try:
-                prob = ((freqofOldWord + nw*prob)/(totalFreq + nw))
-            except:
-                return float('NaN')
-        prob = math.log(prob)
+            for i in range(2, self.n + 1):
+                oldContext = context[-i+1:]
+                oldWord = tuple(oldContext+[currWord])
+                freqofOldWord = self.ngram_frequencies[i-1][oldWord]
+                cw = self.contextCntTable[i-1][tuple(oldContext,)]
+                sm = self.contextTable[i-1][tuple(oldContext,)]
+                try:
+                    lamb = self.lambdaCount(cw, sm)
+                except ZeroDivisionError:
+                    prob = 1/self.ngram_frequencies[0][('<UNK>',)]
+                    break
+                pML = freqofOldWord/sm
+                prob = (1-lamb)*pML + lamb*prob
 
-        self.dpProb[tuple(context+[currWord])] = prob
+            prob = math.log(prob)
+
+            self.dpProb[tuple(context+[currWord])] = prob
         return prob
 
     def perplexity(self, sentence, isTokenized):
-        """
-        Calculate the perplexity of a sentence.
-
-        Parameters:
-        - sentence: The sentence.
-
-        Returns:
-        - The perplexity of the sentence.
-        """
         if(isTokenized == 'not'):
             prevLength = len(sentence)
             sentence = paddedString(Token(sentence), self.n)
@@ -366,25 +396,6 @@ class WittenBell:
         return perpl
 
 
-def splitTestTrainData(dataFile, trainFile, testFile):
-    """
-    Split the data into train and test data.
-
-    Parameters:
-    - dataFile: The data file.
-    - trainFile: The train file.
-    - testFile: The test file.
-    """
-    with open(dataFile, 'r') as f:
-        data = f.readlines()
-    with open(trainFile, 'w') as f:
-        for i in range(2000):
-            f.write(data[i])
-    with open(testFile, 'w') as f:
-        for i in range(2500,3000):
-            f.write(data[i])
-
-
 def generateResult(model, testFile, resultFile):
     """
     Generate the result file.
@@ -395,22 +406,20 @@ def generateResult(model, testFile, resultFile):
     - resultFile: The result file.
     """
 
-    resFile = open(resultFile, 'w')
     dataFile = open(testFile, 'r')
-    avgPerplexity = 0
+    resFile = open(resultFile, 'w')
     storeResults = []
+    avgPerplexity = 0
     totLines = 0
+    start = time.time()
     for sentence in dataFile:
         sentence = sentence.rstrip()
         tokens = Token(sentence)
         perplexity = model.perplexity(tokens, 'tok')
-        if(perplexity == float('NaN')):
-            continue
-        if perplexity != float('nan'):
+        if(perplexity != 'nan'):
             avgPerplexity += perplexity
         totLines += 1
         storeResults.append((sentence, perplexity))
-        # resFile.write(f"{sentence}\t {perplexity}\n")
 
     avgPerplexity = avgPerplexity/totLines
     resFile.write(f"Average Perplexity: {avgPerplexity}\n")
@@ -420,107 +429,108 @@ def generateResult(model, testFile, resultFile):
     dataFile.close()
 
 
-def language_model(n, smoothingMethod, corupsPath, trainfileName, testfileName, trainResult, testResult):
+def language_model(n, smoothingMethod, corupsPath,trainFileName,testFileName, trainResult, testResult,modelPath):
     # if files doesn't exist, create them
+    if not os.path.exists(trainFileName):
+        open(trainFileName, 'w').close()
+    if not os.path.exists(testFileName):
+        open(testFileName, 'w').close()
     if not os.path.exists(trainResult):
         open(trainResult, 'w').close()
     if not os.path.exists(testResult):
         open(testResult, 'w').close()
-    if not os.path.exists(trainfileName):
-        open(trainfileName, 'w').close()
-    if not os.path.exists(testfileName):
-        open(testfileName, 'w').close()
-
-    # split the data into train and test data
-    splitTestTrainData(corupsPath, trainfileName, testfileName)
+    if corupsPath == '../DATA/cleaned_corpus.txt':
+        ngramFreq, contextTable, contextCntTable, vocab, contextWordTable, totWordGram = loadModel(modelPath)
+    if corupsPath == '../DATA/cleaned_corpus2.txt':
+        ngramFreq, contextTable, contextCntTable, vocab, contextWordTable, totWordGram = loadModel(modelPath)
 
     model = None
-    ngramFreq, vocab = createFreqTable(trainfileName, n)
-    # print(ngramFreq)
+    d = 0.75
     if(smoothingMethod == 'k'):
-        model = KneserNey(vocab, ngramFreq, n)
+        model = KneserNey(vocab, ngramFreq, n, d, contextTable,
+                          contextCntTable, contextWordTable, totWordGram)
     elif(smoothingMethod == 'w'):
-        model = WittenBell(vocab, ngramFreq, n)
+        model = WittenBell(vocab, ngramFreq, n, contextTable,
+                           contextCntTable, contextWordTable, totWordGram)
 
-    # generate the result file for train data
-    # generateResult(model, trainfileName, trainResult)
-    # generate the result file for test data
-    # print("Test Data: ")
-    generateResult(model, testfileName, testResult)
+    generateResult(model, trainFileName, trainResult)
+    generateResult(model, testFileName, testResult)
 
     return model
 
 
-smoothingMethod = sys.argv[1]
-corpus = sys.argv[2]
-md = language_model(4, smoothingMethod, corpus, '../DATA/train.txt',
-                    '../DATA/test.txt', '../DATA/trainResult.txt', '../DATA/testResult.txt')
+# x = 2
+# a = '../DATA/2020101050_LM' + str(x) + 'train-perplexity.txt'
+# b = '../DATA/2020101050_LM' + str(x) + 'test-perplexity.txt'
+# language_model(4, 'w', '../DATA/cleaned_corpus.txt', a, b)
 
-input_sentence = str(input("Enter a sentence: "))
-# print(input_sentence)
-tokens = Token(input_sentence)
-# print(tokens)
-perpl = md.perplexity(tokens, 'tok')
-print(perpl)
 
-   def getProbability(self, ind, sentence):
-       """
-        Get the probability of a indth word using (ind -n +1) to ind as context
-        Parameters:
-        - ind: The index of the word.
-        - sentence: The sentence.
-        - dpProb: A dictionary containing the probabilities of each n-gram for n from 1 to n.
-
-        Returns:
-        - The probability of the word.
-        """
-       currWord = sentence[ind]
-       context = sentence[ind-self.n+1:ind]
-       currWord = currWord if currWord in self.vocab else '<UNK>'
-       context = [word if word in self.vocab else '<UNK>' for word in context]
-       try:
-            prob = self.dpProb[tuple(context + [currWord])]
-        except:
-            KeyError
-        pair = tuple(context[-1] + currWord)
-        freqofPair = self.ngram_frequencies[1][pair]  # count of pair
-        # tw = prob of seeing a new bigram starting with w1
-        # nw = number of different n-gram (types) starting with w1
-        # zw = number of unseen n-gram (tokens) starting with w1
-        tw = len([freq for cont, freq in self.ngram_items[1]
-                 if freq > 0 and cont[0] == context[-1]])
-        nw = sum(
-            freq for cont, freq in self.ngram_items[1] if freq > 0 and cont[0] == context[-1])
-        if(tw == 0):
-            tw = 1
-        if(freqofPair == 0):
-            zw = len(self.vocab)-tw
-            den = zw*(nw+tw)
-            if den == 0:
-                prob = 0
-            else:
-                prob = (tw/den)
+def plotPerplexityGraph(resultFile1, resultFile2):
+    # extract the perplexity from the result file
+    dataFile1 = open(resultFile1, 'r')
+    dataFile2 = open(resultFile2, 'r')
+    perplexity1 = []
+    perplexity2 = []
+    avg_p1 = 0
+    avg_p2 = 0
+    for line in dataFile1:
+        if(line.startswith("Average")):
+            avg_p1 = float(line.split(" ")[2].rstrip())
+            continue
         else:
-            try:
-                prob = (freqofPair)/(nw+tw)
-            except:
-                return 1/self.ngram_frequencies[0][('<UNK>',)]
+            perplexity1.append(float(line.split("\t")[1].rstrip()))
 
-        for i in range(3, self.n + 1):
-            oldContext = context[-i+1:]
-            oldWord = tuple(oldContext+[currWord])
-            freqofOldWord = self.ngram_frequencies[i-1][oldWord]
-            probArray = [frequency for cont, frequency in self.ngram_items[i-1]
-                         if frequency > 0 and list(cont[:-1]) == list(oldContext)]
-            totalFreq = sum(probArray)
-            nw = len(probArray)
-            if(nw == 0):
-                nw = 2
-            try:
-                prob = ((freqofOldWord + nw*prob)/(totalFreq + nw))
-            except:
-                return float('NaN')
-        prob = math.log(prob)
+    for line in dataFile2:
+        if(line.startswith("Average")):
+            avg_p2 = float(line.split(" ")[2].rstrip())
+            continue
+        else:
+            perplexity2.append(float(line.split("\t")[1].rstrip()))
 
-        self.dpProb[tuple(context+[currWord])] = prob
-        return prob
+    # plot the graph
+    plt.plot(perplexity1, label="Kneser Ney")
+    plt.plot(perplexity2, label="Witten Bell")
+    plt.xlabel('Sentence Number')
+    plt.ylabel('Perplexity')
+    # make a horizontal line for y = avg perplexity
+    plt.axhline(y=avg_p1, color='r', linestyle='-',
+                label="Average Perplexity for Kneser Ney")
+    plt.axhline(y=avg_p2, color='g', linestyle='-',
+                label="Average Perplexity for Witten Bell")
+    # print avg value
+    print("Average Perplexity for Kneser Ney: ", avg_p1)
+    print("Average Perplexity for Witten Bell: ", avg_p2)
+    plt.title('Perplexity Graph')
+    # increase the size of the graph
+    plt.rcParams["figure.figsize"] = (15, 15)
+
+    plt.legend()
+    plt.show()
+
+
+# plotPerplexityGraph('../DATA/2020101050_LM1train-perplexity.txt',
+#                     '../DATA/2020101050_LM2train-perplexity.txt')
+
+
+
+smoothingMethod = sys.argv[1]
+corpusPath = sys.argv[2]
+
+# create train and test and save modules here and then pass the path to the language model function
+splitTestTrainData(corpusPath, 'train1.txt', 'test1.txt')
+ngramFreq,vocab = createFreqTable('train1.txt', 4)
+contextTable,contextCntTable,contextWordTable,totWordGram = calforallContext(ngramFreq,4)
+saveModel('model.pkl',ngramFreq, contextTable, contextCntTable, vocab, contextWordTable, totWordGram)
+
+md = language_model(4,smoothingMethod,corpusPath,'train1.txt','test1.txt','train1-result.txt','test1-result.txt','model.pkl')
+
+# input sentence
+sentence = input("Enter the sentence: ")
+sentence = sentence.rstrip()
+tokens = Token(sentence)
+perplexity = md.perplexity(tokens, 'tok')
+print("Perplexity: ", perplexity)
+
+# result
+# Enter the sentence: marrying him
+# Perplexity:  4.244369356083246
