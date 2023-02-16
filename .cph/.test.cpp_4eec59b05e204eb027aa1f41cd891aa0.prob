@@ -1,0 +1,1 @@
+{"name":"Local: test","url":"/home/abhishek/Desktop/NLP-Spring23/test.cpp","tests":[{"id":1676186112921,"input":"3\n4\n1101\n0111\n8\n10100110\n10011110\n7\n0001101\n1110010","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/abhishek/Desktop/NLP-Spring23/test.cpp","group":"local","local":true}
