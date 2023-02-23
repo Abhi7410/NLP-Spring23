@@ -7,7 +7,7 @@ with this ebook or online at <URL>
 title pride and prejudice
 author jane austen
 editor r w robert william chapman
-release date may 9 <NUMBER> ebook 42671
+release date may <NUMBER> <NUMBER> ebook <NUMBER>
 language english
 start of the project gutenberg ebook pride and prejudice
 etext prepared by greg weeks jon hurst mary meehan and the online
@@ -35,10 +35,10 @@ vol i
 london
 printed for t egerton
 military library whitehall
-1813
+<NUMBER>
 illustration morning dress
 invented by mrs bell <NUMBER> charlotte street bedford square
-engraved for no <NUMBER> of la belle assemblee 1st july 1815
+engraved for no <NUMBER> of la belle assemblee 1st july <NUMBER>
 pride prejudice
 chapter i
 it is a truth universally acknowledged that a single man in possession
@@ -3724,7 +3724,7 @@ vol ii
 london
 printed for t egerton
 military library whitehall
-1813
+<NUMBER>
 pride prejudice
 chapter i
 miss bingleys letter arrived and put an end to doubt the very first
@@ -6736,7 +6736,7 @@ vol iii
 london
 printed for t egerton
 military library whitehall
-1813
+<NUMBER>
 illustration dovedale
 pride prejudice
 chapter i
@@ -8362,7 +8362,7 @@ elizabeth impatiently caught it from his hand jane now came up
 read it aloud said their father for i hardly know myself what it is
 about
 gracechurchstreet monday
-august 2
+august <NUMBER>
 my dear brother
 at last i am able to send you some tidings of my niece and such
 as upon the whole i hope will give you satisfaction soon after
@@ -8908,7 +8908,7 @@ hurrying into the little copse where she was least likely to be
 interrupted she sat down on one of the benches and prepared to be
 happy for the length of the letter convinced her that it did not
 contain a denial
-gracechurchstreet sept 6
+gracechurchstreet sept <NUMBER>
 my dear niece
 i have just received your letter and shall devote this whole
 morning to answering it as i foresee that a little writing will
@@ -10905,7 +10905,7 @@ or any other work associated in any way with the phrase project
 gutenberg you agree to comply with all the terms of the full project
 gutenbergtm license available with this file or online at
 <URL>
-section 1 general terms of use and redistributing project gutenbergtm
+section <NUMBER> general terms of use and redistributing project gutenbergtm
 electronic works
 1a by reading or using any part of this project gutenbergtm
 electronic work you indicate that you have read understand agree to
@@ -10916,7 +10916,7 @@ all copies of project gutenbergtm electronic works in your possession
 if you paid a fee for obtaining a copy of or access to a project
 gutenbergtm electronic work and you do not agree to be bound by the
 terms of this agreement you may obtain a refund from the person or
-entity to whom you paid the fee as set forth in paragraph 1e8
+entity to whom you paid the fee as set forth in paragraph 1e<NUMBER>
 1b project gutenberg is a registered trademark it may only be
 used on or associated in any way with an electronic work by people who
 agree to be bound by the terms of this agreement there are a few
@@ -10951,7 +10951,7 @@ gutenbergtm work the foundation makes no representations concerning
 the copyright status of any work in any country outside the united
 states
 1e unless you have removed all references to project gutenberg
-1e1 the following sentence with active links to or other immediate
+1e<NUMBER> the following sentence with active links to or other immediate
 access to the full project gutenbergtm license must appear prominently
 whenever any copy of a project gutenbergtm work any work on which the
 phrase project gutenberg appears or with which the phrase project
@@ -10961,7 +10961,7 @@ this ebook is for the use of anyone anywhere at no cost and with
 almost no restrictions whatsoever you may copy it give it away or
 reuse it under the terms of the project gutenberg license included
 with this ebook or online at <URL>
-1e2 if an individual project gutenbergtm electronic work is derived
+1e<NUMBER> if an individual project gutenbergtm electronic work is derived
 from the public domain does not contain a notice indicating that it is
 posted with permission of the copyright holder the work can be copied
 and distributed to anyone in the united states without paying any fees
@@ -10970,22 +10970,22 @@ with the phrase project gutenberg associated with or appearing on the
 work you must comply either with the requirements of paragraphs 1e<NUMBER>
 through 1e<NUMBER> or obtain permission for the use of the work and the
 project gutenbergtm trademark as set forth in paragraphs 1e<NUMBER> or
-1e9
-1e3 if an individual project gutenbergtm electronic work is posted
+1e<NUMBER>
+1e<NUMBER> if an individual project gutenbergtm electronic work is posted
 with the permission of the copyright holder your use and distribution
 must comply with both paragraphs 1e<NUMBER> through 1e<NUMBER> and any additional
 terms imposed by the copyright holder additional terms will be linked
 to the project gutenbergtm license for all works posted with the
 permission of the copyright holder found at the beginning of this work
-1e4 do not unlink or detach or remove the full project gutenbergtm
+1e<NUMBER> do not unlink or detach or remove the full project gutenbergtm
 license terms from this work or any files containing a part of this
 work or any other work associated with project gutenbergtm
-1e5 do not copy display perform distribute or redistribute this
+1e<NUMBER> do not copy display perform distribute or redistribute this
 electronic work or any part of this electronic work without
 prominently displaying the sentence set forth in paragraph 1e<NUMBER> with
 active links or immediate access to the full terms of the project
 gutenbergtm license
-1e6 you may convert to and distribute this work in any binary
+1e<NUMBER> you may convert to and distribute this work in any binary
 compressed marked up nonproprietary or proprietary form including any
 word processing or hypertext form however if you provide access to or
 distribute copies of a project gutenbergtm work in a format other than
@@ -10995,11 +10995,11 @@ you must at no additional cost fee or expense to the user provide a
 copy a means of exporting a copy or a means of obtaining a copy upon
 request of the work in its original plain vanilla ascii or other
 form any alternate format must include the full project gutenbergtm
-license as specified in paragraph 1e1
-1e7 do not charge a fee for access to viewing displaying
+license as specified in paragraph 1e<NUMBER>
+1e<NUMBER> do not charge a fee for access to viewing displaying
 performing copying or distributing any project gutenbergtm works
-unless you comply with paragraph 1e<NUMBER> or 1e9
-1e8 you may charge a reasonable fee for copies of or providing
+unless you comply with paragraph 1e<NUMBER> or 1e<NUMBER>
+1e<NUMBER> you may charge a reasonable fee for copies of or providing
 access to or distributing project gutenbergtm electronic works provided
 that
 you pay a royalty fee of <NUMBER> of the gross profits you derive from
@@ -11012,7 +11012,7 @@ must be paid within <NUMBER> days following each date on which you
 prepare or are legally required to prepare your periodic tax
 returns royalty payments should be clearly marked as such and
 sent to the project gutenberg literary archive foundation at the
-address specified in section 4 information about donations to
+address specified in section <NUMBER> information about donations to
 the project gutenberg literary archive foundation
 you provide a full refund of any money paid by a user who notifies
 you in writing or by email within <NUMBER> days of receipt that she
@@ -11021,20 +11021,20 @@ license you must require such a user to return or
 destroy all copies of the works possessed in a physical medium
 and discontinue all use of and all access to other copies of
 project gutenbergtm works
-you provide in accordance with paragraph 1f3 a full refund of any
+you provide in accordance with paragraph 1f<NUMBER> a full refund of any
 money paid for a work or a replacement copy if a defect in the
 electronic work is discovered and reported to you within <NUMBER> days
 of receipt of the work
 you comply with all other terms of this agreement for free
 distribution of project gutenbergtm works
-1e9 if you wish to charge a fee or distribute a project gutenbergtm
+1e<NUMBER> if you wish to charge a fee or distribute a project gutenbergtm
 electronic work or group of works on different terms than are set
 forth in this agreement you must obtain permission in writing from
 both the project gutenberg literary archive foundation and michael
 hart the owner of the project gutenbergtm trademark contact the
 foundation as set forth in section <NUMBER> below
 1f
-1f1 project gutenberg volunteers and employees expend considerable
+1f<NUMBER> project gutenberg volunteers and employees expend considerable
 effort to identify do copyright research on transcribe and proofread
 public domain works in creating the project gutenbergtm
 collection despite these efforts project gutenbergtm electronic
@@ -11044,20 +11044,20 @@ corrupt data transcription errors a copyright or other intellectual
 property infringement a defective or damaged disk or other medium a
 computer virus or computer codes that damage or cannot be read by
 your equipment
-1f2 limited warranty disclaimer of damages except for the right
-of replacement or refund described in paragraph 1f3 the project
+1f<NUMBER> limited warranty disclaimer of damages except for the right
+of replacement or refund described in paragraph 1f<NUMBER> the project
 gutenberg literary archive foundation the owner of the project
 gutenbergtm trademark and any other party distributing a project
 gutenbergtm electronic work under this agreement disclaim all
 liability to you for damages costs and expenses including legal
 fees you agree that you have no remedies for negligence strict
 liability breach of warranty or breach of contract except those
-provided in paragraph 1f3 you agree that the foundation the
+provided in paragraph 1f<NUMBER> you agree that the foundation the
 trademark owner and any distributor under this agreement will not be
 liable to you for actual direct indirect consequential punitive or
 incidental damages even if you give notice of the possibility of such
 damage
-1f3 limited right of replacement or refund if you discover a
+1f<NUMBER> limited right of replacement or refund if you discover a
 defect in this electronic work within <NUMBER> days of receiving it you can
 receive a refund of the money if any you paid for it by sending a
 written explanation to the person you received the work from if you
@@ -11069,18 +11069,18 @@ providing it to you may choose to give you a second opportunity to
 receive the work electronically in lieu of a refund if the second copy
 is also defective you may demand a refund in writing without further
 opportunities to fix the problem
-1f4 except for the limited right of replacement or refund set forth
-in paragraph 1f3 this work is provided to you asis with no other
+1f<NUMBER> except for the limited right of replacement or refund set forth
+in paragraph 1f<NUMBER> this work is provided to you asis with no other
 warranties of any kind express or implied including but not limited to
 warranties of merchantability or fitness for any purpose
-1f5 some states do not allow disclaimers of certain implied
+1f<NUMBER> some states do not allow disclaimers of certain implied
 warranties or the exclusion or limitation of certain types of damages
 if any disclaimer or limitation set forth in this agreement violates the
 law of the state applicable to this agreement the agreement shall be
 interpreted to make the maximum disclaimer or limitation permitted by
 the applicable state law the invalidity or unenforceability of any
 provision of this agreement shall not void the remaining provisions
-1f6 indemnity you agree to indemnify and hold the foundation the
+1f<NUMBER> indemnity you agree to indemnify and hold the foundation the
 trademark owner any agent or employee of the foundation anyone
 providing copies of project gutenbergtm electronic works in accordance
 with this agreement and any volunteers associated with the production
@@ -11090,7 +11090,7 @@ that arise directly or indirectly from any of the following which you do
 or cause to occur a distribution of this or any project gutenbergtm
 work b alteration modification or additions or deletions to any
 project gutenbergtm work and c any defect you cause
-section 2 information about the mission of project gutenbergtm
+section <NUMBER> information about the mission of project gutenbergtm
 project gutenbergtm is synonymous with the free distribution of
 electronic works in formats readable by the widest variety of computers
 including obsolete old middleaged and new computers it exists
@@ -11099,39 +11099,39 @@ people in all walks of life
 volunteers and financial support to provide volunteers with the
 assistance they need are critical to reaching project gutenbergtms
 goals and ensuring that the project gutenbergtm collection will
-remain freely available for generations to come in 2001 the project
+remain freely available for generations to come in <NUMBER> the project
 gutenberg literary archive foundation was created to provide a secure
 and permanent future for project gutenbergtm and future generations
 to learn more about the project gutenberg literary archive foundation
 and how your efforts and donations can help see sections <NUMBER> and <NUMBER>
 and the foundation information page at <URL>
-section 3 information about the project gutenberg literary archive
+section <NUMBER> information about the project gutenberg literary archive
 foundation
 the project gutenberg literary archive foundation is a non profit
-501c3 educational corporation organized under the laws of the
+501c<NUMBER> educational corporation organized under the laws of the
 state of mississippi and granted tax exempt status by the internal
 revenue service the foundations ein or federal tax identification
-number is 646221541 contributions to the project gutenberg
+number is <NUMBER> contributions to the project gutenberg
 literary archive foundation are tax deductible to the full extent
 permitted by us federal laws and your states laws
 the foundations principal office is located at <NUMBER> melan dr s
-fairbanks ak 99712 but its volunteers and employees are scattered
+fairbanks ak <NUMBER> but its volunteers and employees are scattered
 throughout numerous locations its business office is located at <NUMBER>
-north <NUMBER> west salt lake city ut 84116 801 5961887 email
+north <NUMBER> west salt lake city ut <NUMBER> <NUMBER> <NUMBER> email
 contact links and up to date contact information can be found at the
 foundations web site and official page at <URL>
 for additional contact information
 dr gregory b newby
 chief executive and director
 gbnewby<MENTION>
-section 4 information about donations to the project gutenberg
+section <NUMBER> information about donations to the project gutenberg
 literary archive foundation
 project gutenbergtm depends upon and cannot survive without wide
 spread public support and donations to carry out its mission of
 increasing the number of public domain and licensed works that can be
 freely distributed in machine readable form accessible by the widest
 array of equipment including outdated equipment many small donations
-<NUMBER> to 5000 are particularly important to maintaining tax exempt
+<NUMBER> to <NUMBER> are particularly important to maintaining tax exempt
 status with the irs
 the foundation is committed to complying with the laws regulating
 charities and charitable donations in all <NUMBER> states of the united
@@ -11152,7 +11152,7 @@ please check the project gutenberg web pages for current donation
 methods and addresses donations are accepted in a number of other
 ways including checks online payments and credit card donations
 to donate please visit <URL>
-section 5 general information about project gutenbergtm electronic
+section <NUMBER> general information about project gutenbergtm electronic
 works
 professor michael s hart was the originator of the project gutenbergtm
 concept of a library of electronic works that could be freely shared
