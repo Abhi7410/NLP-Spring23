@@ -39,12 +39,17 @@ def load_glove_embeddings(file_path):
     return embeddings
 
 
-embeddings = load_glove_embeddings('./glove.6B/glove.6B.100d.txt')
-embeddings_list = [embeddings[word] for word in embeddings]
-embeddings_matrix = np.array(embeddings_list)
-# Add a row of zeros for the padding token
+# embeddings = load_glove_embeddings('./glove.6B/glove.6B.100d.txt')
+# embeddings_list = [embeddings[word] for word in embeddings]
+# embeddings_matrix = np.array(embeddings_list)
+# add for PAD
 # embeddings_matrix = np.vstack(
-#     (np.zeros(100).astype(np.float32), embeddings_matrix))
+    # (np.zeros(100).astype(np.float32), embeddings_matrix))
+# add for UNK
+# embeddins_matrix = np.vstack(
+    # (embeddings_matrix, np.random.rand(100).astype(np.float32)))
+
+# np.save('embeddings_matrix.npy', embeddings_matrix)
 
 
 # Create a dictionary of words and their corresponding indices
@@ -64,15 +69,16 @@ def dictWCT(data):
     return wordCount, tagCount, wordFreq
 
 
-wordToIdx, tagToIdx, wordFreq = dictWCT(train_data+valid_data+test_data)
+wordToIdx, tagToIdx, wordFreq = dictWCT(train_data)
 
-idxToWord = {v: k for k, v in wordToIdx.items()}
-idxToTag = {v: k for k, v in tagToIdx.items()}
 wordToIdx['<PAD>'] = 0
 wordFreq = {k: v for k, v in wordFreq.items() if v > 2}
 wordToIdx['<UNK>'] = len(wordFreq)+1
-numUniqueWords = len(wordFreq)+2
+tagToIdx['<UNK>'] = len(tagToIdx)+1
+numUniqueWords = len(wordFreq)
 numUniqueTags = len(tagToIdx)+1
+idxToWord = {v: k for k, v in wordToIdx.items()}
+idxToTag = {v: k for k, v in tagToIdx.items()}
 
 # print("Number of unique words: ", numUniqueWords)
 # print("Number of unique tags: ", numUniqueTags)
@@ -88,7 +94,7 @@ def getIndices(data, wordToIdx, tagToIdx, wordFreq, min_freq=2):
         for word in sentence:
             if word[0] not in wordFreq:
                 wordIdx.append(wordToIdx['<UNK>'])
-                tagIdx.append(tagToIdx[word[1]])
+                tagIdx.append(tagToIdx['<UNK>'])
                 if word[1] not in mxTagForUnk:
                     mxTagForUnk[word[1]] = 1
                 else:
@@ -100,8 +106,8 @@ def getIndices(data, wordToIdx, tagToIdx, wordFreq, min_freq=2):
         tagIndices.append(tagIdx)
 
     mxTagForUnk = max(mxTagForUnk, key=mxTagForUnk.get)
-    tagIndices = [[tagToIdx[mxTagForUnk] if word == wordToIdx['<UNK>'] else tag for word, tag in zip(
-        wordIndices[i], tagIndices[i])] for i in range(len(wordIndices))]
+    # tagIndices = [[tagToIdx[mxTagForUnk] if word == wordToIdx['<UNK>'] else tag for word, tag in zip(
+    #     wordIndices[i], tagIndices[i])] for i in range(len(wordIndices))]
     return wordIndices, tagIndices
 
 
@@ -165,7 +171,7 @@ class BiLSTM(nn.Module):
 
         return tag_scores
 
-
+embeddings_matrix = np.load('embeddings_matrix.npy')
 model = BiLSTM(numUniqueWords, numUniqueTags, WORD_EMBEDDING_DIM,
                LSTM_HIDDEN_DIM_WORD, DROPOUT_RATE, embeddings_matrix)
 if torch.cuda.is_available():
@@ -211,7 +217,8 @@ def train(model, optimizer, criterion, wordTensor, tagTensor):
         optimizer.step()
         total_loss += loss.item()
         pred = torch.argmax(output, dim=1)
-        tot_correct += torch.sum(pred == tag_tensor).item()
+        tot_correct += torch.sum((tag_tensor != 0) &
+                                 (tag_tensor == pred)).item()
 
         total_pad += torch.sum(tag_tensor == 0).item()
 
@@ -236,7 +243,8 @@ def evaluate(model, wordTensor, tagTensor):
             loss = criterion(output, tag_tensor)
             total_loss += loss.item()
             pred = torch.argmax(output, dim=1)
-            tot_correct += torch.sum(pred == tag_tensor).item()
+            tot_correct += torch.sum((tag_tensor != 0) &
+                                     (tag_tensor == pred)).item()
             total_pad += torch.sum(tag_tensor == 0).item()
             # take those only which are not padded
             wordTagList.extend(
@@ -244,21 +252,28 @@ def evaluate(model, wordTensor, tagTensor):
     return total_loss, tot_correct/(len(wordTensor)*len(wordTensor[0]) - total_pad), wordTagList
 
 
-# loss_list = []
-# accuracy_list = []
-# validaton_loss_list = []
-# validaton_accuracy_list = []
-# for epoch in range(NUM_EPOCHS):
-#     loss, totalCorrect = train(
-#         model, optimizer, criterion, wordTensor, tagTensor)
-#     lossValid, totalCorrectValid, _ = evaluate(
-#         model, wordTensorValid, tagTensorValid)
-#     print("Epoch: {0} \t Training Loss: {1} \t Training Accuracy: {2} \t Validation Loss: {3} \t Validation Accuracy: {4}".format(
-#         epoch+1, loss, totalCorrect, lossValid, totalCorrectValid))
-#     loss_list.append(loss)
-#     accuracy_list.append(totalCorrect)
-#     validaton_loss_list.append(lossValid)
-#     validaton_accuracy_list.append(totalCorrectValid)
+def EpochRun(model, optimizer, criterion, wordTensor, tagTensor, wordTensorValid, tagTensorValid):
+    loss_list = []
+    accuracy_list = []
+    validaton_loss_list = []
+    validaton_accuracy_list = []
+    for epoch in range(NUM_EPOCHS):
+        loss, totalCorrect = train(
+            model, optimizer, criterion, wordTensor, tagTensor)
+        lossValid, totalCorrectValid, _ = evaluate(
+            model, wordTensorValid, tagTensorValid)
+        print("Epoch: {0} \t Training Loss: {1} \t Training Accuracy: {2} \t Validation Loss: {3} \t Validation Accuracy: {4}".format(
+            epoch+1, loss, totalCorrect, lossValid, totalCorrectValid))
+        loss_list.append(loss)
+        accuracy_list.append(totalCorrect)
+        validaton_loss_list.append(lossValid)
+        validaton_accuracy_list.append(totalCorrectValid)
+    return loss_list, accuracy_list, validaton_loss_list, validaton_accuracy_list
+
+
+# loss_list, accuracy_list, validaton_loss_list, validaton_accuracy_list = EpochRun(
+#     model, optimizer, criterion, wordTensor, tagTensor, wordTensorValid, tagTensorValid)
+
 
 def genSentence(model, wordFreq, sentence):
     sentence = sentence.lower()
